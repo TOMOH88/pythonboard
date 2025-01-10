@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>게시글 목록</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f7fc;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #333;
+        }
+
+        .create-btn {
+            display: block;
+            width: 200px;
+            margin: 20px auto;
+            text-align: center;
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            font-size: 16px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        .create-btn:hover {
+            background-color: #0056b3;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #007bff;
+            color: white;
+        }
+
+        td {
+            background-color: #fff;
+        }
+
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .pagination li {
+            margin: 0 5px;
+        }
+
+        .pagination a {
+            text-decoration: none;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        .pagination a:hover {
+            background-color: #0056b3;
+        }
+
+        .pagination .current-page {
+            background-color: #0056b3;
+            padding: 10px 20px;
+            color: white;
+            border-radius: 5px;
+        }
+
+        /* 클릭된 페이지 버튼에 대한 스타일 */
+        .pagination .clicked {
+            background-color: orange;
+            color: white;
+        }
+
+    </style>
+</head>
+<body>
+    <h1>게시글 목록</h1>
+
+    <table>
+        <thead>
+            <tr>
+                <th>글번호</th>
+                <th>제목</th>
+                <th>작성자</th>
+                <th>작성시간</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for post in page_obj %}
+                <tr>
+                    <td>{{ post.pk }}</td>
+                    <td><a href="{% url 'detail' post.pk %}">{{ post.title }}</a></td>
+                    <td>{{ post.user }}</td>
+                    <td>{{ post.created_at|date:"Y-m-d H:i:s" }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+
+    <a href="{% url 'create' %}" class="create-btn">글쓰기</a>
+
+    <ul class="pagination">
+        {% if page_obj.has_previous %}
+            <li><a href="?page=1">&laquo; 처음</a></li>
+            <li><a href="?page={{ page_obj.previous_page_number }}">이전</a></li>
+        {% endif %}
+        
+        {% for num in page_obj.paginator.page_range %}
+            {% if num >= page_obj.number|add:"-2" and num <= page_obj.number|add:"2" %}
+                {% if num == page_obj.number %}
+                    <li class="current-page">{{ num }}</li>
+                {% else %}
+                    <li><a href="?page={{ num }}">{{ num }}</a></li>
+                {% endif %}
+            {% endif %}
+        {% endfor %}
+        
+        {% if page_obj.has_next %}
+            <li><a href="?page={{ page_obj.next_page_number }}">다음</a></li>
+            <li><a href="?page={{ page_obj.paginator.num_pages }}">끝</a></li>
+        {% endif %}
+    </ul>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const paginationLinks = document.querySelectorAll('.pagination a');
+            
+            paginationLinks.forEach(link => {
+                link.addEventListener('click', function() {
+                    paginationLinks.forEach(link => link.classList.remove('clicked'));
+                    this.classList.add('clicked');
+                });
+            });
+        });
+    </script>
+</body>
+</html>

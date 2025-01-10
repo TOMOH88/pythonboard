@@ -1,0 +1,55 @@
+<!-- post_detail.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ post.title }}</title>
+    <style>
+        /* 버튼을 옆에 배치하고 크기를 동일하게 설정 */
+        .button-container {
+            display: flex;
+            width: 100%;  /* 부모 컨테이너가 전체 너비를 차지하도록 */
+        }
+        .button-container form, .button-container a {
+            width: 20%;  /* 버튼이 부모 컨테이너의 절반을 차지하도록 */
+        }
+        .button-container button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            width: 100%;  /* 버튼이 부모 컨테이너의 너비를 모두 차지하도록 */
+        }
+        .delete-button {
+            background-color: red;
+            color: white;
+        }
+        .back-button {
+            background-color: #007bff;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <h1>{{ post.title }}</h1>
+    <p>{{ post.content }}</p>
+    <p>작성일: {{ post.created_at }}</p>
+
+    <!-- 버튼들을 flexbox로 옆에 배치 -->
+    <div class="button-container">
+        <!-- 삭제 버튼 -->
+        <form method="POST" action="{% url 'post_delete' post.pk %}">
+            {% csrf_token %}
+            <button type="submit" class="delete-button">삭제</button>
+        </form>
+
+        <!-- 목록으로 돌아가기 버튼 -->
+         <!-- 목록으로 돌아가기 버튼 -->
+         <a href="javascript:window.history.back();" class="btn btn-primary">
+            <button class="back-button">목록으로 돌아가기</button>
+        </a>
+    </div>
+</body>
+</html>
