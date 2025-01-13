@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    print(f"Events: {events}")
+    <title>일정 달력</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        td, th {
+            padding: 10px;
+            text-align: center;
+            border: 1px solid #ddd;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+        .today {
+            background-color: #ffeb3b;
+        }
+        .event-day {
+            background-color: #ff5722;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <h1>일정 달력</h1>
+
+    <div>
+        <a href="?month={{ current_month|add:'-1' }}&year={{ current_year }}" class="button">이전</a>
+        <span>{{ current_year }}년 {{ current_month }}월</span>
+        <a href="?month={{ current_month|add:'1' }}&year={{ current_year }}" class="button">다음</a>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>일</th>
+                <th>월</th>
+                <th>화</th>
+                <th>수</th>
+                <th>목</th>
+                <th>금</th>
+                <th>토</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for i in 0|to:6 %}
+            <tr>
+                {% for j in 0|to:6 %}
+                {% with day=month_days|slice:i*7+j %}
+                <td class="{% if day == today.date %}today{% endif %} {% if day in event_dict %}event-day{% endif %}">
+                    <span>{{ day.day }}</span>
+                    {% if day in event_dict %}
+                    <ul>
+                        {% for event in event_dict[day] %}
+                        <li>{{ event.title }}</li>
+                        {% endfor %}
+                    </ul>
+                    {% endif %}
+                </td>
+                {% endwith %}
+                {% endfor %}
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

@@ -122,3 +122,10 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+DATETIME_INPUT_FORMATS = [
+    '%Y-%m-%d %H:%M:%S',  # 2025-01-20 13:40:00
+    '%Y-%m-%d %H:%M',     # 2025-01-20 13:40
+    '%Y.%m.%d %p %I:%M',  # 2025. 01. 20. 오후 01:40
+]

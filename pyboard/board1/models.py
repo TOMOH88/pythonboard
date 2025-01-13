@@ -11,3 +11,13 @@ class Post(models.Model):
 
     def __str__(self):
         return self.title
+    
+
+class Event(models.Model):
+    title = models.CharField(max_length=100)  # 일정 제목
+    description = models.TextField(blank=True, null=True)  # 상세 내용
+    start_date = models.DateTimeField(null=True, blank=True)
+    end_date = models.DateTimeField(null=True, blank=True)
+
+    def __str__(self):
+        return self.title
