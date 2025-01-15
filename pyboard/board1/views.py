@@ -4,7 +4,12 @@ from .forms import PostForm
 from django.core.paginator import Paginator
 import calendar
 from datetime import datetime, timedelta, date
-
+import yfinance as yf
+from .models import StockData
+import json
+import numpy as np
+from django.http import HttpResponse
+from .forms import StockForm
 
 # Create your views here.
 # webapp/views.py
@@ -43,3 +48,74 @@ def post_delete(request, pk):
 
 def calender(request):
     return render(request, 'calender.html')
+
+
+
+
+# def fetch_stock_data(request):
+#     symbols = ["AAPL", "GOOGL", "MSFT", "OPTT", "NVLD"]
+#     stock_data = []
+
+#     for symbol in symbols:
+#         stock = yf.Ticker(symbol)
+#         hist = stock.history(period="1d")
+#         if not hist.empty:
+#             current_price = hist["Close"].iloc[-1]
+#             stock_data.append({"symbol": symbol, "price": current_price})
+
+#     # 심볼 및 가격을 JSON으로 전달
+#     symbols = [stock['symbol'] for stock in stock_data]
+#     prices = [stock['price'] for stock in stock_data]
+
+#     return render(request, 'stock_data.html', {
+#         "symbols": symbols,
+#         "prices": prices,
+#     })
+
+
+# def stock_data_view(request):
+#     symbols = ['AAPL', 'GOOGL', 'MSFT']
+#     prices = [150, 2800, 299]
+
+#     return render(request, 'stock_data.html', {
+#         'symbols': json.dumps(symbols),
+#         'prices': json.dumps(prices)
+#     })
+
+
+def fetch_stock_data(request):
+    # 기본 설정된 심볼
+    symbols = ["AAPL", "GOOGL", "MSFT", "OPTT", "NVDL"]
+    stock_data = []
+
+    # 기본 심볼에 대한 데이터 가져오기
+    for symbol in symbols:
+        stock = yf.Ticker(symbol)
+        hist = stock.history(period="1d")
+        if not hist.empty:
+            current_price = hist["Close"].iloc[-1]
+            stock_data.append({"symbol": symbol, "price": current_price})
+
+    # POST 요청이 들어올 경우, 데이터를 처리
+    if request.method == 'POST':
+        symbol = request.POST.get('symbol')  # 사용자가 입력한 심볼
+
+        if symbol and symbol not in symbols:  # 심볼이 비어 있지 않고 중복되지 않으면 추가
+            symbols.append(symbol)  # 새로운 심볼 추가
+
+            # 새로 추가된 심볼에 대한 가격 가져오기
+            stock = yf.Ticker(symbol)
+            hist = stock.history(period="1d")
+            if not hist.empty:
+                current_price = hist["Close"].iloc[-1]
+                stock_data.append({"symbol": symbol, "price": current_price})
+
+    # 심볼 및 가격 데이터를 JSON으로 변환하여 템플릿에 전달
+    symbols = [stock['symbol'] for stock in stock_data]
+    prices = [stock['price'] for stock in stock_data]
+
+    # 데이터를 JSON으로 변환하여 템플릿에 전달
+    return render(request, 'stock_data.html', {
+        'symbols': json.dumps(symbols),
+        'prices': json.dumps(prices),
+    })

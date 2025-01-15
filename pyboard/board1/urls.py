@@ -9,4 +9,6 @@ urlpatterns = [
     path('post/<int:pk>/delete/', views.post_delete, name='post_delete'),  # 게시글 삭제
 
     path('calender/', views.calender , name='calender'),
+
+    path('fetch_stock_data/', views.fetch_stock_data, name='fetch_stock_data'),
 ]
