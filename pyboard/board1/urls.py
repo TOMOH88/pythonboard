@@ -11,4 +11,6 @@ urlpatterns = [
     path('calender/', views.calender , name='calender'),
 
     path('fetch_stock_data/', views.fetch_stock_data, name='fetch_stock_data'),
+
+    path('book/', views.fetch_library_data, name='book'),
 ]

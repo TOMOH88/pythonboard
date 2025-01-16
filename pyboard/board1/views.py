@@ -10,6 +10,8 @@ import json
 import numpy as np
 from django.http import HttpResponse
 from .forms import StockForm
+import requests
+import xml.etree.ElementTree as ET
 
 # Create your views here.
 # webapp/views.py
@@ -119,3 +121,52 @@ def fetch_stock_data(request):
         'symbols': json.dumps(symbols),
         'prices': json.dumps(prices),
     })
+
+
+
+
+
+def fetch_library_data(request):
+    # API URL 및 인증키
+    url = "https://openapi.gg.go.kr/Poplitloanbook"
+    api_key = "5d2ea9292e75441a9efdecaa4637c253"  # 발급받은 인증키로 교체
+
+    # 요청 파라미터
+    params = {
+        'Key': api_key,
+        'Type': 'xml',  # XML 형식으로 요청
+        'pIndex': 1,     # 페이지 번호
+        'pSize': 50      # 한 번에 가져올 데이터 크기
+    }
+
+    # API 호출
+    response = requests.get(url, params=params)
+    rows = []  # 데이터를 저장할 리스트
+
+    if response.status_code == 200:
+        try:
+            # XML 데이터를 파싱
+            root = ET.fromstring(response.content)
+            for item in root.findall(".//row"):  # row 태그 검색
+                row_data = {
+                    'ranking': item.findtext('RKI_NO'),  # 순위번호
+                    'title': item.findtext('BOOK_NM_INFO'),  # 도서명정보
+                    'author': item.findtext('AUTHOR_NM_INFO'),  # 저자명정보
+                    'publisher': item.findtext('PUBLSHCMPY_NM'),  # 출판사명
+                    'publication_year': item.findtext('PUBLCATN_YY'),  # 출판년도
+                    'volume_count': item.findtext('VOLM_CNT'),  # 권수
+                    'book_image_url': item.findtext('BOOK_IMAGE_URL')  # 도서 이미지 URL
+                }
+                rows.append(row_data)
+        except ET.ParseError as e:
+            print(f"Error parsing XML: {e}")
+    else:
+        print(f"API request failed with status code: {response.status_code}")
+
+    # Django Paginator로 페이징 처리 (5개씩 나누기)
+    paginator = Paginator(rows, 5)  # 페이지 당 5개 데이터
+    page_number = request.GET.get('page', 1)  # 요청에서 페이지 번호 가져오기 (기본 1)
+    page_obj = paginator.get_page(page_number)
+
+    # 데이터를 템플릿에 전달
+    return render(request, 'book.html', {'page_obj': page_obj})
